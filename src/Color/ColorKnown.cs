@@ -12,7 +12,28 @@ namespace Color
             .GetFields(BindingFlags.Static | BindingFlags.Public)
             .ToDictionary(kv => kv.Name, kv => (Color)kv.GetValue(null)));
 
-        public static Color FromName(string name) => knownColors.Value.TryGetValue(name, out var color) ? color : Color.Empty;
-        public static bool IsKnownColor(this Color color)=> color != Color.Empty;
+        public static Color FromName(string nameOrHex) => FromName(nameOrHex, Color.Empty);
+        public static Color FromName(string nameOrHex, Color defaultColor)
+        {
+            if (knownColors.Value.TryGetValue(nameOrHex, out var color))
+            {
+                return color;
+            }
+            else
+            {
+                var hex = nameOrHex.StartsWith("#") 
+                    ? nameOrHex.Substring(1, nameOrHex.Length -1) 
+                    : nameOrHex;
+                try
+                {
+                    return new Color(Convert.ToUInt32(hex, 16));
+                }
+                catch (Exception)
+                {
+                    return defaultColor;
+                }
+            }
+        }
+        public static bool IsKnownColor(this Color color) => color != Color.Empty;
     }
 }

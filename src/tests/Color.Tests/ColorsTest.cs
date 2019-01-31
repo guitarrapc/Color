@@ -63,5 +63,33 @@ namespace Color.Tests
             ColorKnown.FromName(color).ToHsl(out var h, out var s, out var l);
             Color.FromHsl(h, s, l).Is(ColorKnown.FromName(color));
         }
+
+        [Theory]
+        [InlineData("0xffffffff", 0xffffffff)]
+        [InlineData("0xff800aff", 0xff800aff)]
+        [InlineData("0xffcc0b", 0xffcc0b)]
+        [InlineData("#0xffcc0b", 0xffcc0b)]
+        public void StringHexToColor(string color, uint hex)
+        {
+            ColorKnown.FromName(color).Is(new Color(hex));
+        }
+
+        [Theory]
+        [InlineData("#######", 0x00000000)]
+        [InlineData("HOGEMOGE", 0x00000000)]
+        [InlineData("#INVALID", 0x00000000)]
+        public void StringHexToColorBadConversionStandard(string color, uint hex)
+        {
+            ColorKnown.FromName(color).Is(new Color(hex));
+        }
+
+        [Theory]
+        [InlineData("#######", 0xff000000)]
+        [InlineData("HOGEMOGE", 0xff000000)]
+        [InlineData("#INVALID", 0xff000000)]
+        public void StringHexToColorBadConversionFallback(string color, uint hex)
+        {
+            ColorKnown.FromName(color, Colors.Black).Is(new Color(hex));
+        }
     }
 }
